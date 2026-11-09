@@ -1,0 +1,45 @@
+ziko.pro — CÓMO CONFIGURAR (web + panel)
+========================================
+
+REPOSITORIOS
+  • El de tu web «ziko» (el que ya tienes, con tu dominio ziko.pro) → sube TODO lo de ziko-web.zip
+    (reemplaza los archivos; hay archivos NUEVOS: firebase-config.js, datos.js, zk.js, demo.html,
+    contratar.html y la carpeta img/portafolio con las capturas de tus trabajos).
+    Las fotos «WhatsApp Image…» que estaban sueltas ya no se usan: puedes borrarlas.
+    ⚠️ NO borres el archivo CNAME (es el que conecta tu dominio ziko.pro).
+  • Uno NUEVO para el panel, por ejemplo «ziko-admin» → sube ziko-admin.zip
+    Quedará en https://zikopro820.github.io/ziko-admin
+  En los dos: Settings → Pages → Branch: main → Save.
+
+1. REVISA TU firebaseConfig
+   Lo copié de tu foto. Abre firebase-config.js (en los DOS) y compara la línea apiKey con la de Firebase
+   (Configuración del proyecto → Tus apps). Si un solo carácter no coincide, no conecta.
+
+2. FIRESTORE Y REGLAS
+   Firebase → Firestore Database → Crear base de datos (si aún no existe) → Reglas → pega firestore.rules → Publicar.
+
+3. USUARIOS (Authentication → Users → Agregar usuario)
+   admin@ziko.pro (todo)  ·  ventas@ziko.pro (demos, pedidos, clientes, caja y mensajes)
+   ¿Otros correos (por ejemplo tu Gmail)? Cámbialos en firebase-config.js del panel (equipo) Y en firestore.rules.
+   Dominios autorizados: ziko.pro, www.ziko.pro y zikopro820.github.io (ya lo hiciste).
+
+4. PRIMERA VEZ
+   Entra al panel como admin → «Ajustes» → «Cargar ejemplos» (crea tu portafolio con las capturas y los planes).
+   Luego:
+   • Ajustes: tu WhatsApp, correo, RUC, QR de Yape/Plin, cuentas, tipo de cambio y % de adelanto.
+   • Portafolio y demos: en cada sistema con demo pega el enlace de la WEB, del PANEL, y el usuario y
+     contraseña de prueba (usa un usuario «Ventas» de esa demo, no el de Administración).
+     Sube las capturas que faltan (NARA, Killa, Mente Serena).
+   • Planes y precios: revisa precios y lo que incluye cada plan.
+
+EL DÍA A DÍA
+  • Alguien pide una demo en ziko.pro/demo → suena en el panel → «Solicitudes de demo» →
+    «Generar código y enviar» → se abre WhatsApp con su código y el enlace directo.
+    El código vence solo (7 días por defecto). Puedes extenderlo, desactivarlo o reenviarlo.
+  • Alguien contrata un plan en ziko.pro/precios → paga el adelanto o el total con Yape/Plin/transferencia →
+    «Pedidos y proyectos» → ves su captura → «Validar» → «Iniciar desarrollo» → «Entregar» (cobras el saldo).
+  • ¿Te contrataron por WhatsApp? Botón «Nuevo proyecto» y registras lo que pagó.
+  • Recibo en PDF de cada proyecto, N° de boleta, clientes con su historial, caja y reportes
+    (incluye cuántas demos se volvieron clientes).
+  • Los mensajes de Contacto y del Libro de Reclamaciones llegan a «Mensajes».
+  • El recibo NO reemplaza la boleta o factura electrónica de SUNAT.

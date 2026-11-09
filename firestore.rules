@@ -1,0 +1,72 @@
+rules_version = '2';
+// =========================================================
+// ziko.pro — Reglas de seguridad de Firestore
+// Pega TODO este archivo en Firebase → Firestore → Reglas → Publicar.
+// Los correos deben ser los MISMOS de firebase-config.js (equipo) del panel.
+// =========================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function equipo() {
+      return request.auth != null && request.auth.token.email in [
+        'admin@ziko.pro',
+        'ventas@ziko.pro'
+      ];
+    }
+    function admin() {
+      return request.auth != null && request.auth.token.email in ['admin@ziko.pro'];
+    }
+    function d() { return request.resource.data; }
+
+    // ---------- Lo que la web muestra a todos ----------
+    match /ajustes/{id}    { allow read: if true; allow write: if admin(); }
+    match /portafolio/{id} { allow read: if true; allow write: if admin(); }
+    match /planes/{id}     { allow read: if true; allow write: if admin(); }
+
+    // ---------- Enlaces y usuarios de las demos: SOLO el equipo ----------
+    match /demo_links/{id} { allow read, write: if admin(); allow read: if equipo(); }
+
+    // ---------- Solicitudes de demo (formulario de la web) ----------
+    match /solicitudes/{id} {
+      allow read, update, delete: if equipo();
+      allow create: if d().keys().hasOnly(['nombre', 'celular', 'sistema', 'negocio', 'estado', 'creado'])
+        && d().estado == 'nuevo' && d().nombre is string && d().nombre.size() <= 80
+        && d().celular is string && d().celular.size() <= 20 && d().negocio.size() <= 120;
+    }
+
+    // ---------- Códigos de acceso ----------
+    // Solo se puede LEER un código si se conoce exacto, está activo y no venció.
+    // Nadie de afuera puede listar los códigos ni crearlos.
+    match /accesos/{codigo} {
+      allow get: if equipo() || (resource.data.activo == true && resource.data.venceMs > request.time.toMillis());
+      allow list, write: if equipo();
+    }
+
+    // ---------- Pedidos de planes (pago con captura) ----------
+    match /pedidos/{id} {
+      allow read, update, delete: if equipo();
+      allow create: if equipo() || (
+        d().keys().hasOnly(['codigo', 'plan', 'items', 'subtotal', 'envio', 'total', 'monto', 'tipoPago', 'nombre', 'celular', 'email', 'negocio', 'doc',
+          'comprobante', 'detalle', 'pago', 'banco', 'operacion', 'montoLeido', 'coincide', 'fechaOk', 'estado', 'origen', 'creado'])
+        && d().codigo == id && d().origen == 'web' && d().estado == 'por-validar'
+        && d().items is list && d().items.size() == 1
+        && d().total is number && d().total > 0 && d().monto is number && d().monto > 0 && d().monto <= d().total
+        && d().nombre is string && d().nombre.size() <= 80 && d().detalle.size() <= 1500);
+    }
+    // Captura del pago (solo el equipo la ve)
+    match /capturas/{id} {
+      allow read, update, delete: if equipo();
+      allow create: if equipo() || (
+        d().keys().hasOnly(['pedido', 'captura']) && d().pedido == id
+        && existsAfter(/databases/$(database)/documents/pedidos/$(id))
+        && d().captura is string && d().captura.size() < 900000);
+    }
+    // Mensajes de Contacto y Libro de Reclamaciones
+    match /mensajes/{id} {
+      allow read, update, delete: if equipo();
+      allow create: if d().keys().hasOnly(['nombre', 'telefono', 'asunto', 'mensaje', 'estado', 'creado'])
+        && d().estado == 'nuevo' && d().mensaje is string && d().mensaje.size() <= 4000;
+    }
+    match /movimientos/{id} { allow read, write: if equipo(); }
+  }
+}
