@@ -7,7 +7,7 @@ const NAV = [
   ["inicio", "home", "Inicio", TODOS], ["demos", "key", "Solicitudes de demo", TODOS], ["pedidos", "bag", "Pedidos y proyectos", TODOS],
   ["mensual", "cal", "Planes mensuales", TODOS], ["completas", "box", "Compras completas", TODOS],
   ["clientes", "users", "Clientes", TODOS], ["caja", "cash", "Caja", TODOS], ["mensajes", "msg", "Mensajes", TODOS],
-  ["portafolio", "grid", "Portafolio y demos", ADM], ["planes", "tag", "Planes y precios", ADM], ["reportes", "chart", "Reportes", ADM], ["ajustes", "gear", "Ajustes", ADM]
+  ["portafolio", "grid", "Portafolio y demos", ADM], ["web", "edit", "Textos e imágenes de la web", ADM], ["planes", "tag", "Planes y precios", ADM], ["reportes", "chart", "Reportes", ADM], ["ajustes", "gear", "Ajustes", ADM]
 ];
 const puede = v => (NAV.find(n => n[0] === v) || [, , , []])[3].includes(YO().rol);
 const LOGO = `<svg class="zk-logo" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="zl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a6fdb"/><stop offset="1" stop-color="#22c3be"/></linearGradient></defs><path d="M18 24h52L30 76h52" stroke="url(#zl)" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M62 12l14 12-14 12M38 64L24 76l14 12" stroke="currentColor" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -439,6 +439,59 @@ function formPort(p) {
     $("#pFx")?.addEventListener("click", () => { $("[name=foto]", F).value = ""; $("#pPrev").style.backgroundImage = "none"; });
     $("#delP")?.addEventListener("click", async () => { if (!confirm(`¿Eliminar «${p.nombre}» del portafolio?`)) return; await DB.batch([{ op: "del", col: "portafolio", id: p.id }, { op: "del", col: "demo_links", id: p.id }]); cerrarModal(); toast("Eliminado"); VIEWS.portafolio(); }); } });
 }
+
+/* ================= TEXTOS, IMÁGENES Y BOTONES DE LA WEB ================= */
+let WP = "index", WCH = {};
+const ETQ = { h1: "Título principal", h2: "Título", h3: "Subtítulo", h4: "Subtítulo", p: "Párrafo", li: "Punto de la lista", summary: "Pregunta", span: "Texto", strong: "Texto", small: "Texto pequeño", em: "Texto", b: "Texto" };
+const ENLACES = [["/", "Inicio"], ["/servicios", "Servicios"], ["/precios", "Precios"], ["/portafolio", "Portafolio"], ["/portafolio?tipo=sistema", "Portafolio · solo sistemas"], ["/demo", "Demos"], ["/nosotros", "Nosotros"], ["/contacto", "Contacto"], ["/mis-compras", "Mis compras"], ["wa:", "WhatsApp (abre el chat)"], ["otro", "Otro enlace…"]];
+VIEWS.web = async () => {
+  const PAG = window.ZK_PAGINAS || [], pg = PAG.find(p => p.id === WP) || PAG[0]; if (!pg) { $("#view").innerHTML = vacio("Falta el archivo campos.js"); return; }
+  const ov = {}; (await DB.list("contenido")).forEach(c => ov[c.id] = c); WCH = {};
+  const nEd = id => Object.values(ov).filter(c => c.page === id).length;
+  const val = c => ov[c.k] || {};
+  const campo = c => {
+    const o = val(c), ed = !!ov[c.k];
+    if (c.tipo === "img") return `<div class="w-f w-img ${ed ? "ed" : ""}" data-k="${esc(c.k)}"><span class="w-prev" style="background-image:url('${esc(IMG(o.v || c.def))}')"></span><div><b>Imagen</b>${c.alt ? `<small class="muted">${esc(c.alt)}</small>` : ""}
+      <div class="acts-g"><label class="btn btn-light btn-sm">${ico("camera")} Subir foto<input type="file" accept="image/*" data-wimg hidden></label><input class="q w-url" placeholder="…o pega un enlace https://" data-wurl><button type="button" class="btn btn-light btn-sm" data-wres ${ed ? "" : "hidden"}>↺ Original</button></div></div></div>`;
+    if (c.tipo === "btn") { const href = o.href ?? c.href, enl = ENLACES.find(x => x[0] === href || (x[0] === "wa:" && /^wa:/.test(href))) ? (/^wa:/.test(href) ? "wa:" : href) : "otro";
+      return `<div class="w-f w-btn ${ed ? "ed" : ""}" data-k="${esc(c.k)}"><b>Botón</b><div class="g2"><label class="fld"><span>Texto del botón</span><input data-wt value="${esc(o.t ?? c.t)}"></label>
+        ${c.wa ? `<div class="fld"><span>Lleva a</span><small class="muted">Abre WhatsApp con tu número</small></div>` : `<label class="fld"><span>Lleva a</span><select data-ws>${ENLACES.map(([v, t]) => `<option value="${esc(v)}" ${v === enl ? "selected" : ""}>${esc(t)}</option>`).join("")}</select><input data-wh class="w-href" value="${esc(enl === "wa:" ? href.slice(3) : href)}" placeholder="${enl === "wa:" ? "Mensaje que se escribe en WhatsApp" : "https://… o /pagina"}" ${enl === "otro" || enl === "wa:" ? "" : "hidden"}></label>`}</div>
+        <button type="button" class="btn btn-light btn-xs" data-wres ${ed ? "" : "hidden"}>↺ Volver al original</button></div>`; }
+    const v = o.v ?? c.def, largo = v.length > 90 || v.includes("\n");
+    return `<div class="w-f ${ed ? "ed" : ""}" data-k="${esc(c.k)}"><label class="fld"><span>${ETQ[c.tag] || "Texto"}${ed ? ` <em class="w-ed">editado</em>` : ""}</span>${largo ? `<textarea data-wv rows="${Math.min(8, Math.ceil(v.length / 90) + 1)}">${esc(v)}</textarea>` : `<input data-wv value="${esc(v)}">`}
+      ${c.mk ? `<small class="muted">Lo que pongas entre *asteriscos* sale resaltado.</small>` : ""}</label><button type="button" class="btn btn-light btn-xs" data-wres ${ed ? "" : "hidden"}>↺ Original</button></div>`;
+  };
+  $("#view").innerHTML = topBar("Textos e imágenes de la web", "Cambia cualquier título, párrafo, imagen o botón de tus páginas. Lo que no toques se queda como está.",
+    `<select class="q" id="wPag">${PAG.map(p => `<option value="${esc(p.id)}" ${p.id === pg.id ? "selected" : ""}>${esc(p.nombre)}${nEd(p.id) ? ` · ${nEd(p.id)} editado(s)` : ""}</option>`).join("")}</select>${pg.id !== "global" ? `<a class="btn btn-light btn-sm" href="${esc(WEB())}/${pg.id === "index" ? "" : pg.id}" target="_blank" rel="noopener">${ico("arrow")} Ver página</a>` : ""}<button class="btn btn-pri btn-sm" id="wSave" disabled>${ico("check")} Guardar cambios</button>`) +
+    pg.secciones.map(sc => `<section class="card w-sec"><div class="card-h"><h2>${esc(sc.t)}</h2><small class="muted">${sc.campos.length} elemento(s)</small></div><div class="w-list">${sc.campos.map(campo).join("")}</div></section>`).join("") +
+    `<div class="w-bar" id="wBar" hidden><span id="wN"></span><button class="btn btn-light btn-sm" id="wCancel">Descartar</button><button class="btn btn-pri btn-sm" id="wSave2">${ico("check")} Guardar cambios</button></div>`;
+  const C = {}; pg.secciones.forEach(sc => sc.campos.forEach(c => C[c.k] = c));
+  const marcar = () => { const n = Object.keys(WCH).length; $("#wSave").disabled = !n; $("#wBar").hidden = !n; $("#wN").textContent = `${n} cambio(s) sin guardar`; };
+  const leer = box => { const c = C[box.dataset.k];
+    if (c.tipo === "txt") return { v: $("[data-wv]", box).value };
+    if (c.tipo === "btn") { const t = $("[data-wt]", box).value.trim(), sel = $("[data-ws]", box); if (!sel) return { t, href: c.href };
+      const sv = sel.value, h = $("[data-wh]", box).value.trim(); return { t, href: sv === "otro" ? h : sv === "wa:" ? "wa:" + h : sv }; }
+    return null; };
+  const cambio = box => { const c = C[box.dataset.k], o = ov[c.k], x = leer(box); if (!x) return;
+    const igualDef = c.tipo === "txt" ? x.v === c.def : x.t === c.t && x.href === c.href, igualOv = o && (c.tipo === "txt" ? x.v === o.v : x.t === o.t && x.href === o.href);
+    if (igualDef) { if (o) WCH[c.k] = null; else delete WCH[c.k]; } else if (igualOv) delete WCH[c.k]; else WCH[c.k] = x;
+    box.classList.toggle("cambio", c.k in WCH); marcar(); };
+  const V = $("#view");
+  V.oninput = e => { const b = e.target.closest(".w-f"); if (!b) return; if (e.target.matches("[data-ws]")) { const sv = e.target.value, h = $("[data-wh]", b); h.hidden = !(sv === "otro" || sv === "wa:"); h.placeholder = sv === "wa:" ? "Mensaje que se escribe en WhatsApp" : "https://… o /pagina"; if (sv === "wa:" && !/^wa:/.test(h.value)) h.value = "Hola ziko.pro 👋 Quiero información."; }
+    if (e.target.matches("[data-wurl]")) { const u = e.target.value.trim(); if (/^https:\/\//.test(u)) { WCH[b.dataset.k] = { v: u }; $(".w-prev", b).style.backgroundImage = `url('${u}')`; b.classList.add("cambio"); marcar(); } return; }
+    cambio(b); };
+  V.onchange = async e => { const b = e.target.closest(".w-f"); if (!b) return;
+    if (e.target.matches("[data-wimg]")) { const f = e.target.files[0]; if (!f) return; const u = await redimensionar(f, 1500, .72); if (u.length > 900000) return toast("La foto pesa demasiado, usa una más liviana", true); WCH[b.dataset.k] = { v: u }; $(".w-prev", b).style.backgroundImage = `url('${u}')`; b.classList.add("cambio"); marcar(); return; }
+    V.oninput(e); };
+  V.onclick = e => { const r = e.target.closest("[data-wres]"); if (!r) return; const b = r.closest(".w-f"), c = C[b.dataset.k];
+    if (c.tipo === "txt") $("[data-wv]", b).value = c.def; else if (c.tipo === "btn") { $("[data-wt]", b).value = c.t; const sel = $("[data-ws]", b); if (sel) { const en = ENLACES.find(x => x[0] === c.href) ? c.href : "otro"; sel.value = en; $("[data-wh]", b).value = c.href; $("[data-wh]", b).hidden = en !== "otro"; } }
+    else { $(".w-prev", b).style.backgroundImage = `url('${IMG(c.def)}')`; $("[data-wurl]", b).value = ""; }
+    if (ov[c.k]) WCH[c.k] = null; else delete WCH[c.k]; b.classList.toggle("cambio", c.k in WCH); marcar(); };
+  const guardar = async () => { const ops = Object.entries(WCH).map(([k, x]) => x === null ? { op: "del", col: "contenido", id: k } : { op: "set", col: "contenido", id: k, data: { page: pg.id, ...x, actualizado: new Date().toISOString() }, merge: false });
+    if (!ops.length) return; $("#wSave").disabled = true; await DB.batch(ops); toast(`Guardado · ${ops.length} cambio(s) ya se ven en la web`); VIEWS.web(); };
+  $("#wSave").onclick = guardar; $("#wSave2").onclick = guardar; $("#wCancel").onclick = () => VIEWS.web();
+  $("#wPag").onchange = e => { if (Object.keys(WCH).length && !confirm("Tienes cambios sin guardar. ¿Salir sin guardar?")) { e.target.value = WP; return; } WP = e.target.value; VIEWS.web(); };
+};
 
 /* ================= PLANES Y PRECIOS ================= */
 VIEWS.planes = async () => {

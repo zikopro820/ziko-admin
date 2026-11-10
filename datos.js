@@ -24,7 +24,7 @@ window.ZK_AJUSTES = {
 };
 
 window.ZK_SEMILLA = function () {
-  const db = { ajustes: { general: JSON.parse(JSON.stringify(window.ZK_AJUSTES)) }, portafolio: {}, demo_links: {}, planes: {}, solicitudes: {}, accesos: {}, pedidos: {}, pagos: {}, capturas: {}, movimientos: {}, mensajes: {} };
+  const db = { ajustes: { general: JSON.parse(JSON.stringify(window.ZK_AJUSTES)) }, portafolio: {}, demo_links: {}, planes: {}, solicitudes: {}, accesos: {}, pedidos: {}, pagos: {}, contenido: {}, capturas: {}, movimientos: {}, mensajes: {} };
   const F = n => n ? "img/portafolio/" + n + ".jpg" : "";
   const P = [
     ["ferreteria", "Ferretería Ronald", "sistema", "Tienda online con panel administrativo: pedidos web, stock, venta en tienda, caja, clientes, pagos con Yape, Plin y transferencia, y recibos en PDF.", "ferreteria-ronald", true, true],

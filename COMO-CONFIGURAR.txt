@@ -56,5 +56,12 @@ EL DÍA A DÍA
   • ¿Te contrataron por WhatsApp? Botón «Nuevo proyecto» y registras lo que pagó.
   • Recibo en PDF de cada proyecto, N° de boleta, clientes con su historial, caja y reportes
     (incluye cuántas demos se volvieron clientes).
+  • TEXTOS E IMÁGENES DE LA WEB (solo Administración): eliges la página y cambias cualquier título,
+    párrafo, imagen (subes foto o pegas enlace) o botón (su texto y a dónde lleva: una página, WhatsApp
+    u otro enlace). «En todas las páginas» cambia el botón COTIZAR del menú, el texto del pie y la franja
+    final «¿Listo para…?». Con «↺ Original» vuelves al texto o foto de siempre.
+    Lo que pongas entre *asteriscos* en un título sale resaltado con el color de la marca.
+  • Precios: todo se muestra en DÓLARES y el cliente paga en SOLES con tu tipo de cambio (Ajustes).
+    El plan mensual sigue siendo S/ 120 (se ve como $32) y la instalación S/ 300 (se ve como $80).
   • Los mensajes de Contacto y del Libro de Reclamaciones llegan a «Mensajes».
   • El recibo NO reemplaza la boleta o factura electrónica de SUNAT.

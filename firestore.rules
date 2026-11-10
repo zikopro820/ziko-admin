@@ -22,6 +22,7 @@ service cloud.firestore {
     match /ajustes/{id}    { allow read: if true; allow write: if admin(); }
     match /portafolio/{id} { allow read: if true; allow write: if admin(); }
     match /planes/{id}     { allow read: if true; allow write: if admin(); }
+    match /contenido/{id}  { allow read: if true; allow write: if admin(); }   // textos, imágenes y botones editados de la web
 
     // ---------- Enlaces y usuarios de las demos: SOLO el equipo ----------
     match /demo_links/{id} { allow read, write: if admin(); allow read: if equipo(); }
