@@ -131,7 +131,7 @@ const topBar = (t, sub, acc = "") => `<div class="v-h"><div><h1>${t}</h1>${sub ?
 const vacio = t => `<div class="empty">${ico("box")}<p>${t}</p></div>`;
 const EST_P = { "por-validar": ["Pago por validar", "warn"], confirmado: ["Confirmado", "pri"], desarrollo: ["En desarrollo", "pri"], entregado: ["Entregado", "ok"], rechazado: ["Pago rechazado", "bad"], anulado: ["Anulado", "bad"] };
 const estP = e => { const [t, c] = EST_P[e] || [e, "mute"]; return `<span class="st ${c}">${t}</span>`; };
-const saldoDe = p => Math.max(0, r2((+p.total || 0) - (+p.pagado || 0)));
+const saldoDe = p => p.modalidad === "mensual" ? 0 : Math.max(0, r2((+p.total || 0) - (+p.pagado || 0)));
 const METODOS = ["Efectivo", "Yape", "Plin", "Transferencia", "Tarjeta"];
 const beep = () => { try { const a = new (window.AudioContext || window.webkitAudioContext)(), o = a.createOscillator(), g = a.createGain(); o.connect(g); g.connect(a.destination); o.frequency.value = 880; g.gain.setValueAtTime(.15, a.currentTime); o.start(); o.frequency.setValueAtTime(1175, a.currentTime + .15); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + .45); o.stop(a.currentTime + .45); } catch (e) {} };
 
@@ -144,7 +144,7 @@ async function pdfRecibo(p) {
   const SS = n => "S/ " + (+n || 0).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   doc.setFillColor(18, 48, 90); doc.rect(0, 0, W, 24, "F"); doc.setFillColor(34, 195, 190); doc.rect(0, 24, W, 1.6, "F");
   F(1, 15, 255); T(NOMBRE(), M, 12); F(0, 7.5, 210); T((aj.razon && aj.razon !== NOMBRE() ? aj.razon + " · " : "") + "Desarrollo web & aplicaciones" + (aj.ruc ? " · RUC " + aj.ruc : ""), M, 17); T([aj.telefono, aj.email].filter(Boolean).join(" · "), M, 21);
-  F(1, 9, 255); T("RECIBO DE PAGO", W - M, 12, { align: "right" }); F(1, 11, 255); T(p.codigo || p.id, W - M, 18, { align: "right" });
+  F(1, 9, 255); T(p.modalidad === "mensual" ? "RECIBO · PLAN MENSUAL" : p.modalidad === "completo" ? "RECIBO · COMPRA COMPLETA" : "RECIBO DE PAGO", W - M, 12, { align: "right" }); F(1, 11, 255); T(p.codigo || p.id, W - M, 18, { align: "right" });
   let y = 34; F(0, 8, 90); T("Fecha: " + new Date(p.creado || Date.now()).toLocaleString("es-PE"), M, y); T("Estado: " + (EST_P[p.estado] || [p.estado])[0], W - M, y, { align: "right" });
   y += 6; doc.setFillColor(243, 247, 251); doc.roundedRect(M, y, W - 2 * M, 24, 1.5, 1.5, "F");
   F(1, 7, 120); T("CLIENTE", M + 3, y + 5); F(1, 9.5); T(p.nombre || "Cliente", M + 3, y + 10); F(0, 8, 70);
@@ -154,10 +154,13 @@ async function pdfRecibo(p) {
   doc.setFillColor(18, 48, 90); doc.rect(M, y, W - 2 * M, 7, "F"); F(1, 7.5, 255); T("DESCRIPCIÓN", M + 3, y + 4.8); T("IMPORTE", W - M - 3, y + 4.8, { align: "right" }); y += 7;
   (p.items || []).forEach(i => { F(0, 8.5, 30); const l = doc.splitTextToSize(i.n, 90); l.forEach((x, k) => T(x, M + 3, y + 5 + k * 4)); F(1, 8.5, 30); T(SS(i.precio * i.cant), W - M - 3, y + 5, { align: "right" }); y += 4 * l.length + 4; });
   doc.setDrawColor(210); doc.setLineWidth(.2); doc.line(M, y, W - M, y); y += 6;
-  const pag = +p.pagado || 0, filas = [["Total del proyecto", p.total], ["Pagado", pag], ["Saldo pendiente", saldoDe(p)]];
-  filas.forEach(([k, v], i) => { if (i === 1) { doc.setFillColor(34, 195, 190); doc.roundedRect(W - M - 70, y - 4.5, 70, 7, 1.2, 1.2, "F"); } F(i === 1, i === 1 ? 9.5 : 8.5, i === 1 ? 255 : 60); T(k, W - M - 30, y, { align: "right" }); T(SS(v), W - M - 3, y, { align: "right" }); y += 7; });
+  const pag = +p.pagado || 0, fL = iso => iso ? new Date(String(iso).slice(0, 10) + "T12:00:00").toLocaleDateString("es-PE", { day: "numeric", month: "long", year: "numeric" }) : "—";
+  const filas = p.modalidad === "mensual" ? [["Cuota mensual", SS(p.mensual || aj.mensual || 120)], ["Total pagado", SS(pag)], ["Servicio pagado hasta", fL(p.vence)]] : [["Total", SS(p.total)], ["Pagado", SS(pag)], ["Saldo pendiente", SS(saldoDe(p))]];
+  filas.forEach(([k, v], i) => { if (i === 1) { doc.setFillColor(34, 195, 190); doc.roundedRect(W - M - 76, y - 4.5, 76, 7, 1.2, 1.2, "F"); } F(i === 1, i === 1 ? 9.5 : 8.5, i === 1 ? 255 : 60); if (String(v).length > 14) T(`${k}: ${v}`, W - M - 3, y, { align: "right" }); else { T(k, W - M - 36, y, { align: "right" }); T(v, W - M - 3, y, { align: "right" }); } y += 7; });
+  if (p.soporteHasta) { F(1, 8, 30); T(`Soporte gratis hasta el ${fL(p.soporteHasta)}`, M, y + 1); y += 6; }
+  if (p.bloqueado) { F(1, 8, 180); T("Servicio bloqueado por falta de pago", M, y + 1); y += 6; }
   const pagos = (p.pagos || []).length ? p.pagos : pag ? [{ fecha: p.validado || p.creado, monto: pag, metodo: p.pago }] : [];
-  if (pagos.length) { F(1, 7, 120); T("PAGOS RECIBIDOS", M, y + 1); y += 5; pagos.forEach(x => { F(0, 8, 50); T(`${new Date(x.fecha || Date.now()).toLocaleDateString("es-PE")} · ${x.metodo || ""}`, M, y); T(SS(x.monto), M + 70, y, { align: "right" }); y += 4.5; }); }
+  if (pagos.length) { F(1, 7, 120); T("PAGOS RECIBIDOS", M, y + 1); y += 5; pagos.slice(-14).forEach(x => { F(0, 8, 50); T(`${new Date(x.fecha || Date.now()).toLocaleDateString("es-PE")} · ${x.metodo || ""}`, M, y); T(SS(x.monto), M + 70, y, { align: "right" }); y += 4.5; }); }
   else { F(0, 8, 50); T(`Pago: ${p.pago || ""}${p.banco ? " · " + p.banco : ""}${p.operacion ? " · Op. " + p.operacion : ""} (por validar)`, M, y + 1); y += 5; }
   if (p.detalle) { y += 4; F(1, 7, 120); T("PROYECTO", M, y); F(0, 8, 60); doc.splitTextToSize(p.detalle, W - 2 * M).slice(0, 6).forEach((x, k) => T(x, M, y + 5 + k * 4)); }
   doc.setDrawColor(220); doc.line(M, H - 16, W - M, H - 16);

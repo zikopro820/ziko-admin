@@ -42,23 +42,39 @@ service cloud.firestore {
       allow list, write: if equipo();
     }
 
-    // ---------- Pedidos de planes (pago con captura) ----------
+    // ---------- Compras de planes y sistemas (pago con captura) ----------
     match /pedidos/{id} {
-      allow read, update, delete: if equipo();
+      allow get: if true;                    // el cliente ve su compra en «Mis compras» con su código
+      allow list, update, delete: if equipo();
       allow create: if equipo() || (
-        d().keys().hasOnly(['codigo', 'plan', 'items', 'subtotal', 'envio', 'total', 'monto', 'tipoPago', 'nombre', 'celular', 'email', 'negocio', 'doc',
+        d().keys().hasOnly(['codigo', 'plan', 'sistema', 'modalidad', 'mensual', 'dominio', 'dominioNombre', 'items', 'subtotal', 'envio', 'total', 'monto', 'tipoPago', 'nombre', 'celular', 'email', 'negocio', 'doc',
           'comprobante', 'detalle', 'pago', 'banco', 'operacion', 'montoLeido', 'coincide', 'fechaOk', 'estado', 'origen', 'creado'])
         && d().codigo == id && d().origen == 'web' && d().estado == 'por-validar'
-        && d().items is list && d().items.size() == 1
+        && d().items is list && d().items.size() >= 1 && d().items.size() <= 3
         && d().total is number && d().total > 0 && d().monto is number && d().monto > 0 && d().monto <= d().total
         && d().nombre is string && d().nombre.size() <= 80 && d().detalle.size() <= 1500);
+    }
+    // ---------- Pagos del saldo desde «Mis compras» ----------
+    // El id es CODIGO-P2, CODIGO-P3… Solo se crea si la compra existe y el monto es la cuota mensual
+    // (plan mensual) o no pasa el saldo (compra completa / plan web).
+    match /pagos/{id} {
+      allow get: if true;
+      allow list, update, delete: if equipo();
+      allow create: if equipo() || (
+        d().keys().hasOnly(['pedido', 'monto', 'nombre', 'celular', 'pago', 'banco', 'operacion', 'montoLeido', 'coincide', 'fechaOk', 'estado', 'creado'])
+        && d().estado == 'por-validar' && id.matches(d().pedido + '-P[0-9]+')
+        && exists(/databases/$(database)/documents/pedidos/$(d().pedido))
+        && d().monto is number && d().monto > 0
+        && (get(/databases/$(database)/documents/pedidos/$(d().pedido)).data.get('modalidad', '') == 'mensual'
+            ? d().monto == get(/databases/$(database)/documents/pedidos/$(d().pedido)).data.get('mensual', 0)
+            : d().monto <= get(/databases/$(database)/documents/pedidos/$(d().pedido)).data.total - get(/databases/$(database)/documents/pedidos/$(d().pedido)).data.get('pagado', 0) + 0.01));
     }
     // Captura del pago (solo el equipo la ve)
     match /capturas/{id} {
       allow read, update, delete: if equipo();
       allow create: if equipo() || (
         d().keys().hasOnly(['pedido', 'captura']) && d().pedido == id
-        && existsAfter(/databases/$(database)/documents/pedidos/$(id))
+        && (existsAfter(/databases/$(database)/documents/pedidos/$(id)) || existsAfter(/databases/$(database)/documents/pagos/$(id)))
         && d().captura is string && d().captura.size() < 900000);
     }
     // Mensajes de Contacto y Libro de Reclamaciones

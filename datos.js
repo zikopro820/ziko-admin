@@ -11,6 +11,10 @@ window.ZK_AJUSTES = {
   tipoCambio: 3.75,      // para cobrar en soles los planes en dólares
   adelantoPct: 50,       // % de adelanto al contratar un plan
   demoDias: 7,           // días que dura un código de demo
+  mensual: 120,          // plan mensual de los sistemas (S/ por mes, se paga a fin de mes)
+  instalacion: 300,      // instalación del plan mensual solo si quiere dominio propio
+  gracia: 5,             // días de plazo después de fin de mes antes de bloquear
+  soporteMeses: 24,      // soporte gratis en la compra completa (2 años)
   // Pagos
   pagoYape: true, yapeQR: "", yapeNum: "999 999 999", yapeTitular: "ziko.pro",
   pagoPlin: true, plinQR: "", plinNum: "999 999 999", plinTitular: "ziko.pro",
@@ -20,7 +24,7 @@ window.ZK_AJUSTES = {
 };
 
 window.ZK_SEMILLA = function () {
-  const db = { ajustes: { general: JSON.parse(JSON.stringify(window.ZK_AJUSTES)) }, portafolio: {}, demo_links: {}, planes: {}, solicitudes: {}, accesos: {}, pedidos: {}, capturas: {}, movimientos: {}, mensajes: {} };
+  const db = { ajustes: { general: JSON.parse(JSON.stringify(window.ZK_AJUSTES)) }, portafolio: {}, demo_links: {}, planes: {}, solicitudes: {}, accesos: {}, pedidos: {}, pagos: {}, capturas: {}, movimientos: {}, mensajes: {} };
   const F = n => n ? "img/portafolio/" + n + ".jpg" : "";
   const P = [
     ["ferreteria", "Ferretería Ronald", "sistema", "Tienda online con panel administrativo: pedidos web, stock, venta en tienda, caja, clientes, pagos con Yape, Plin y transferencia, y recibos en PDF.", "ferreteria-ronald", true, true],
@@ -38,7 +42,7 @@ window.ZK_SEMILLA = function () {
     ["lenceria", "Lencería Ana's", "tienda", "Tienda online de lencería con colecciones, ofertas y diseño elegante.", "lenceria-anas", false, false]
   ];
   P.forEach(([id, nombre, tipo, desc, foto, demo, destacado], i) => {
-    db.portafolio[id] = { nombre, tipo, desc, foto: F(foto), link: "", demo, destacado, visible: true, orden: i };
+    db.portafolio[id] = { nombre, tipo, desc, foto: F(foto), link: "", demo, destacado, visible: true, orden: i, precio: null, moneda: "USD", mensual: null, mensualActivo: true };   // precio del sistema: se pone en el panel
     if (demo) db.demo_links[id] = { web: "", admin: "", usuario: "", clave: "", nota: "Entra al panel con el usuario de prueba. Todo lo que hagas es solo de prueba." };
   });
   db.planes = {
@@ -57,7 +61,7 @@ window.ZK_SEMILLA = function () {
       nombre: "Luis Ramírez", celular: "987222111", email: "luis@correo.com", negocio: "Taller Ramírez", doc: "", comprobante: "Boleta", detalle: "Página para mi taller mecánico con galería de trabajos y botón de WhatsApp.",
       pago: "Yape", banco: "", operacion: "11223344", montoLeido: 656.25, coincide: true, estado: "por-validar", origen: "web", creado: h(1) };
     db.capturas["ZK-DEMO01"] = { pedido: "ZK-DEMO01", captura: "" };
-    db.pedidos["ZK-DEMO02"] = { codigo: "ZK-DEMO02", plan: "basico", items: [{ n: "Plan Básico · Página web", precio: 675, cant: 1 }], total: 675, monto: 675, tipoPago: "total", subtotal: 675, envio: 0,
+    db.pedidos["ZK-DEMO02"] = { codigo: "ZK-DEMO02", plan: "basico", items: [{ n: "Plan Básico · Página web", precio: 675, cant: 1 }], total: 675, monto: 675, tipoPago: "total", subtotal: 675, envio: 0, pagos: [{ fecha: h(30), monto: 675, metodo: "Plin" }],
       nombre: "Ana Torres", celular: "987333222", email: "", negocio: "Pastelería Dulce Ana", doc: "", comprobante: "Boleta", detalle: "Página con catálogo de tortas.",
       pago: "Plin", estado: "desarrollo", pagado: 675, origen: "web", creado: h(30) };
     db.movimientos["MV-DEMO1"] = { fecha: hoy, hora: h(3), concepto: "Pago plan Básico · Ana Torres", monto: 675, metodo: "Plin", usuario: "Administración" };

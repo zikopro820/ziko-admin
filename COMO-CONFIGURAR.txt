@@ -4,7 +4,7 @@ ziko.pro — CÓMO CONFIGURAR (web + panel)
 REPOSITORIOS
   • El de tu web «ziko» (el que ya tienes, con tu dominio ziko.pro) → sube TODO lo de ziko-web.zip
     (reemplaza los archivos; hay archivos NUEVOS: firebase-config.js, datos.js, zk.js, demo.html,
-    contratar.html y la carpeta img/portafolio con las capturas de tus trabajos).
+    contratar.html, mis-compras.html y la carpeta img/portafolio con las capturas de tus trabajos).
     Las fotos «WhatsApp Image…» que estaban sueltas ya no se usan: puedes borrarlas.
     ⚠️ NO borres el archivo CNAME (es el que conecta tu dominio ziko.pro).
   • Uno NUEVO para el panel, por ejemplo «ziko-admin» → sube ziko-admin.zip
@@ -29,6 +29,10 @@ REPOSITORIOS
    • Ajustes: tu WhatsApp, correo, RUC, QR de Yape/Plin, cuentas, tipo de cambio y % de adelanto.
    • Portafolio y demos: en cada sistema con demo pega el enlace de la WEB, del PANEL, y el usuario y
      contraseña de prueba (usa un usuario «Ventas» de esa demo, no el de Administración).
+     En cada sistema eliges cómo se vende: PLAN MENSUAL (S/ 120 al mes, o la cuota que pongas) y/o
+     COMPRA COMPLETA (pon su precio: 50% de adelanto y 50% al entregar, con 2 años de soporte gratis).
+   • Ajustes › Plan mensual y compra completa: cuota mensual (120), instalación con dominio propio (300),
+     días de plazo (5) y meses de soporte gratis (24).
      Sube las capturas que faltan (NARA, Killa, Mente Serena).
    • Planes y precios: revisa precios y lo que incluye cada plan.
 
@@ -38,6 +42,17 @@ EL DÍA A DÍA
     El código vence solo (7 días por defecto). Puedes extenderlo, desactivarlo o reenviarlo.
   • Alguien contrata un plan en ziko.pro/precios → paga el adelanto o el total con Yape/Plin/transferencia →
     «Pedidos y proyectos» → ves su captura → «Validar» → «Iniciar desarrollo» → «Entregar» (cobras el saldo).
+  • Alguien prueba una demo → elige PLAN MENSUAL o COMPRA COMPLETA → paga (primer mes + instalación si
+    quiere dominio, o el 50% de adelanto) → lo validas en «Pedidos y proyectos».
+  • El cliente ve sus compras, pagos, saldo y recibos en ziko.pro/mis-compras, y puede PAGAR EL SALDO
+    desde ahí. Te llega en «Pedidos y proyectos» → «Pago de saldo por validar» → validas y se actualiza solo.
+  • PLANES MENSUALES (menú «Planes mensuales»): cada cliente paga a fin de mes. Ves quién está al día,
+    quién vence en 5 días, quién está en sus días de plazo y quién PASÓ EL PLAZO (aviso en rojo en Inicio).
+    Botones: Recordar pago (WhatsApp listo), Registrar mensualidad, Marcar bloqueado / desbloqueado
+    (el bloqueo de su sistema lo haces tú), Cambiar fecha y Dar de baja.
+    El cliente paga su mes desde Mis compras → te llega para validar → su fecha pasa al siguiente fin de mes.
+  • COMPRAS COMPLETAS (menú «Compras completas»): quién pagó el adelanto, quién debe el 50% final,
+    entregados y hasta cuándo tienen soporte gratis (te avisa 30 días antes de que venza).
   • ¿Te contrataron por WhatsApp? Botón «Nuevo proyecto» y registras lo que pagó.
   • Recibo en PDF de cada proyecto, N° de boleta, clientes con su historial, caja y reportes
     (incluye cuántas demos se volvieron clientes).

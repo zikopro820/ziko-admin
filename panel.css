@@ -211,3 +211,6 @@ h1, h2 { font-family: "Montserrat", system-ui, sans-serif; letter-spacing: -.02e
 .plan-c { display: grid; gap: 6px; align-content: start; } .plan-c.hi { outline: 2px solid var(--acc); } .plan-c.off { opacity: .6; }
 .plan-c ul { margin: 6px 0; padding-left: 18px; font-size: .88rem; display: grid; gap: 3px; } .pl-p { font: 800 1.6rem "Montserrat"; color: var(--pri); }
 @media (max-width: 700px) { .mny { grid-template-columns: 1fr 1fr; } }
+.pg-pend { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: #fff8e6; border: 1.5px solid #f3d48a; border-radius: 12px; padding: 10px 12px; margin: 4px 0 8px; }
+.ped.m-ok { border-left: 5px solid var(--ok); } .ped.m-warn { border-left: 5px solid #f59e0b; } .ped.m-bad { border-left: 5px solid var(--bad); } .ped.m-mute { border-left: 5px solid #c5ced9; opacity: .85; }
+.alert.bad { background: var(--badb); color: var(--bad); }
