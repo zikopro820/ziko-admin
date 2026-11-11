@@ -31,6 +31,9 @@ REPOSITORIOS
      contraseña de prueba (usa un usuario «Ventas» de esa demo, no el de Administración).
      En cada sistema eliges cómo se vende: PLAN MENSUAL (S/ 120 al mes, o la cuota que pongas) y/o
      COMPRA COMPLETA (pon su precio: 50% de adelanto y 50% al entregar, con 2 años de soporte gratis).
+     Páginas web, aplicaciones y tiendas online: pega el «Enlace de la demo» (el botón VER DEMO lo abre
+     directo, sin código) y pon su precio (solo compra completa). Sin precio, en la web sale COTIZAR (WhatsApp).
+     Con «+ Nuevo proyecto» agregas más páginas, apps o tiendas cuando quieras.
    • Ajustes › Plan mensual y compra completa: cuota mensual (120), instalación con dominio propio (300),
      días de plazo (5) y meses de soporte gratis (24).
      Sube las capturas que faltan (NARA, Killa, Mente Serena).
