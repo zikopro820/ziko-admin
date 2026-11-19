@@ -37,6 +37,7 @@ async function simular(nombre, d) {
   const col = FACT_COMP(emp), CORR = REAL(emp) ? "corrP" : "corr";
   if (nombre === "credenciales") { if (!d.pfx || !d.pfxClave || !d.solUsuario || !d.solClave) throw new Error("Completa todos los datos"); const prod = { listo: true, usuario: d.solUsuario.toUpperCase(), certVence: "2029-11-18", actualizado: new Date().toISOString() }; await DB.set(FACT.col, FACT.emp, { prod }); return { ok: true, ...prod }; }
   if (REAL(emp) && !(emp.prod || {}).listo) throw new Error("Falta subir el certificado y el usuario secundario SOL (botón «Modo real»)");
+  if (nombre === "consultar") { const c = await DB.get(col, d.id); await DB.set(col, d.id, { estado: "aceptado", codigo: "0", mensaje: "(DEMO) La SUNAT lo tiene aceptado", consulta: "0004 (DEMO)" }); return { ...c, estado: "aceptado", respuesta: "aceptado" }; }
   if (nombre === "reenviar") { const c = await DB.get(col, d.id); await DB.set(col, d.id, { estado: "aceptado", mensaje: "(DEMO) reenviada" }); return { ...c, estado: "aceptado" }; }
   if (nombre === "anular") { const o = await DB.get(col, d.id); if (o.anulado) throw new Error("Ya fue anulado con " + o.anulado);
     const serie = o.tipo === "01" ? emp.serieNCF || "FC01" : emp.serieNCB || "BC01", numero = ((emp[CORR] || {})[serie] || 0) + 1; await DB.set(FACT.col, FACT.emp, { [CORR]: { ...(emp[CORR] || {}), [serie]: numero } });
@@ -113,18 +114,21 @@ VIEWS.facturacion = async () => {
     <section class="card"><div class="tbl-w"><table class="tbl"><thead><tr><th>Comprobante</th><th>Fecha</th><th>Cliente</th><th class="r">Total</th><th>SUNAT</th><th></th></tr></thead><tbody>
       ${l.map(c => { const e = EST_C[c.estado] || [c.estado, "mute"]; return `<tr><td><b>${esc(nComp(c))}</b><br><small class="muted">${TIPO_N[c.tipo] || ""}${c.tipo === "07" && c.refDoc ? ` de ${esc(c.refDoc.id)}` : ""}</small>${c.anulado ? `<br><span class="st bad">Anulada · ${esc(c.anulado)}</span>` : ""}</td><td>${esc(c.fecha.split("-").reverse().join("/"))}<br><small class="muted">${esc(c.hora.slice(0, 5))}</small></td>
         <td>${esc(c.cliente.nombre)}<br><small class="muted">${c.cliente.num !== "-" ? `${DOC_ID[c.cliente.tipoDoc] || ""} ${esc(c.cliente.num)}` : ""}</small></td><td class="r">${S(c.total)}</td>
-        <td><span class="st ${e[1]}">${e[0]}</span>${c.mensaje && c.estado !== "aceptado" ? `<br><small class="muted">${esc(recorta(c.mensaje, 70))}</small>` : ""}</td>
+        <td><span class="st ${e[1]}">${e[0]}</span>${c.mensaje && c.estado !== "aceptado" ? `<br><small class="muted">${c.codigo ? `[${esc(c.codigo)}] ` : ""}${esc(recorta(c.mensaje, 70))}</small>` : ""}${c.consulta && c.estado !== "aceptado" ? `<br><small class="muted">Consulta SUNAT: ${esc(recorta(c.consulta, 70))}</small>` : ""}</td>
         <td class="acts-g"><button class="btn btn-light btn-sm" data-t80="${esc(c.id)}" title="Ticket 80 mm">${ico("print")} 80</button><button class="btn btn-light btn-sm" data-t58="${esc(c.id)}" title="Ticket 58 mm">58</button><button class="btn btn-light btn-sm" data-a4="${esc(c.id)}" title="Hoja A4 / PDF">A4</button>
-          <button class="btn btn-light btn-sm" data-ver="${esc(c.id)}">${ico("file")}</button>${["pendiente", "error"].includes(c.estado) ? `<button class="btn btn-pri btn-sm" data-re="${esc(c.id)}">Reenviar</button>` : ""}${c.tipo !== "07" && vale(c) && !c.anulado ? `<button class="btn btn-light btn-sm" data-an="${esc(c.id)}" title="Anular con nota de crédito">Anular</button>` : ""}</td></tr>`; }).join("") || `<tr><td colspan="6" class="muted">Aún no emites comprobantes. Pulsa «Nueva boleta» para hacer tu primera prueba.</td></tr>`}</tbody></table></div></section>`;
+          <button class="btn btn-light btn-sm" data-ver="${esc(c.id)}">${ico("file")}</button>${["pendiente", "error"].includes(c.estado) ? `${REAL(emp) ? `<button class="btn btn-light btn-sm" data-cq="${esc(c.id)}" title="Pregunta a la SUNAT si ya lo registró">Consultar SUNAT</button>` : ""}<button class="btn btn-pri btn-sm" data-re="${esc(c.id)}">Reenviar</button>` : ""}${c.tipo !== "07" && vale(c) && !c.anulado ? `<button class="btn btn-light btn-sm" data-an="${esc(c.id)}" title="Anular con nota de crédito">Anular</button>` : ""}</td></tr>`; }).join("") || `<tr><td colspan="6" class="muted">Aún no emites comprobantes. Pulsa «Nueva boleta» para hacer tu primera prueba.</td></tr>`}</tbody></table></div></section>`;
   if ($("#fEmi")) $("#fEmi").onclick = () => formEmisor(emp);
   if ($("#fCert")) $("#fCert").onclick = () => formCertificado(emp);
   $("#view").onclick = async e => {
-    const b = e.target.closest("button"); if (!b) return; const id = b.dataset.t80 || b.dataset.t58 || b.dataset.a4 || b.dataset.ver || b.dataset.re || b.dataset.an, c = l.find(x => x.id === id);
+    const b = e.target.closest("button"); if (!b) return; const id = b.dataset.t80 || b.dataset.t58 || b.dataset.a4 || b.dataset.ver || b.dataset.re || b.dataset.an || b.dataset.cq, c = l.find(x => x.id === id);
     if (b.dataset.nuevo) return formComprobante(b.dataset.nuevo, emp);
     if (!c) return;
     if (b.dataset.t80) return ticket(c, emp, 80); if (b.dataset.t58) return ticket(c, emp, 58); if (b.dataset.a4) return ticket(c, emp, "A4");
     if (b.dataset.ver) return verComprobante(c, emp);
     if (b.dataset.an) return formAnular(c, emp);
+    if (b.dataset.cq) { b.disabled = true; b.textContent = "Consultando…"; try { const r = await servidor("consultar", { empresaId: FACT.emp, id: c.id });
+        const txt = { aceptado: "La SUNAT lo tiene ACEPTADO ✓", rechazado: "La SUNAT lo RECHAZÓ", noexiste: "La SUNAT todavía NO lo tiene registrado: usa «Reenviar»", baja: "Está dado de baja en la SUNAT" }[r.respuesta] || `SUNAT: ${r.respuestaCodigo} ${r.respuestaMensaje}`;
+        toast(`${nComp(c)}: ${vale(r) ? "Aceptada por SUNAT ✓" : txt}`, !vale(r)); } catch (er) { toast(er.message, true); } VIEWS.facturacion(); return; }
     if (b.dataset.re) { b.disabled = true; b.textContent = "Enviando…"; try { const r = await servidor("reenviar", { empresaId: FACT.emp, id: c.id }); toast(`${nComp(c)}: ${(EST_C[r.estado] || [r.estado])[0]}`, !["aceptado", "observado"].includes(r.estado)); } catch (er) { toast(er.message, true); } VIEWS.facturacion(); }
   };
 };
@@ -132,7 +136,7 @@ VIEWS.facturacion = async () => {
 function verComprobante(c, emp) {
   const F0 = $("#mF"); if (F0) { F0.oninput = null; F0.onclick = null; }
   const e = EST_C[c.estado] || [c.estado, "mute"];
-  modal(`${TIPO_N[c.tipo] || ""} ${nComp(c)}`, `<div class="alert ${e[1] === "ok" ? "" : e[1]}"><b>${e[0]}</b>${c.codigo ? ` · código ${esc(c.codigo)}` : ""}<br>${esc(c.mensaje || "")}</div>
+  modal(`${TIPO_N[c.tipo] || ""} ${nComp(c)}`, `<div class="alert ${e[1] === "ok" ? "" : e[1]}"><b>${e[0]}</b>${c.codigo ? ` · código ${esc(c.codigo)}` : ""}<br>${esc(c.mensaje || "")}${c.consulta ? `<br><small>Última consulta a la SUNAT: ${esc(c.consulta)}</small>` : ""}</div>
     ${(c.notas || []).length ? `<p><b>Observaciones de la SUNAT:</b></p><ul>${c.notas.map(n => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
     ${c.tipo === "07" && c.refDoc ? `<p><b>Anula:</b> ${esc(c.refDoc.id)} · ${esc(c.refDoc.motivo || "")}</p>` : ""}${c.anulado ? `<div class="alert bad sm">Este comprobante fue anulado con la nota de crédito ${esc(c.anulado)}.</div>` : ""}
     <p><b>Cliente:</b> ${esc(c.cliente.nombre)} ${c.cliente.num !== "-" ? `· ${DOC_ID[c.cliente.tipoDoc] || ""} ${esc(c.cliente.num)}` : ""}</p>
