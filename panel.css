@@ -225,3 +225,11 @@ h1, h2 { font-family: "Montserrat", system-ui, sans-serif; letter-spacing: -.02e
 .w-bar { position: sticky; bottom: 14px; z-index: 30; display: flex; gap: 10px; align-items: center; justify-content: flex-end; background: var(--pri2); color: #fff; padding: 10px 14px; border-radius: 14px; box-shadow: 0 12px 30px rgba(11, 31, 61, .35); }
 .w-bar span { margin-right: auto; font-weight: 700; }
 @media (max-width: 700px) { .w-img { grid-template-columns: 1fr; } .w-prev { width: 100%; } }
+
+/* ---------- Facturación electrónica ---------- */
+.f-it { display: grid; grid-template-columns: 1fr 80px 110px auto; gap: 8px; margin-bottom: 8px; }
+.f-it input { width: 100%; padding: 10px 12px; border: 1px solid var(--line, #d8dee8); border-radius: 10px; font: inherit; }
+.fact-tot { display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: flex-end; align-items: baseline; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line, #d8dee8); }
+.fact-tot b { font-size: 1.15rem; } .fact-tot em { flex-basis: 100%; text-align: right; color: #b45309; font-style: normal; font-weight: 600; }
+h3.sub { margin: 16px 0 8px; font-size: 1rem; }
+@media (max-width: 560px) { .f-it { grid-template-columns: 1fr 70px; } .f-it .f-p { grid-column: 1; } }

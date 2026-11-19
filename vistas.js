@@ -6,7 +6,7 @@ const TODOS = ["Administración", "Ventas"], ADM = ["Administración"];
 const NAV = [
   ["inicio", "home", "Inicio", TODOS], ["demos", "key", "Solicitudes de demo", TODOS], ["pedidos", "bag", "Pedidos y proyectos", TODOS],
   ["mensual", "cal", "Planes mensuales", TODOS], ["completas", "box", "Compras completas", TODOS],
-  ["clientes", "users", "Clientes", TODOS], ["caja", "cash", "Caja", TODOS], ["mensajes", "msg", "Mensajes", TODOS],
+  ["clientes", "users", "Clientes", TODOS], ["caja", "cash", "Caja", TODOS], ["mensajes", "msg", "Mensajes", TODOS], ["facturacion", "file", "Facturación SUNAT", TODOS],
   ["portafolio", "grid", "Portafolio y demos", ADM], ["web", "edit", "Textos e imágenes de la web", ADM], ["planes", "tag", "Planes y precios", ADM], ["reportes", "chart", "Reportes", ADM], ["ajustes", "gear", "Ajustes", ADM]
 ];
 const puede = v => (NAV.find(n => n[0] === v) || [, , , []])[3].includes(YO().rol);

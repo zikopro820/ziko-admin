@@ -13,6 +13,9 @@ window.FIREBASE_CONFIG = {
 
 window.APP = {
   web: "https://ziko.pro",   // dirección de tu web (para los enlaces de demo en WhatsApp y las capturas)
+  // Servidor de facturación GRATIS para pruebas (Vercel). Pega aquí tu dirección, ej. "https://ziko-facturacion.vercel.app/api"
+  // Déjalo vacío ("") cuando uses Firebase Cloud Functions (plan Blaze).
+  factURL: "",
 
   /* EQUIPO Y PERMISOS — cada persona entra con su correo.
      "Administración" → todo · "Ventas" → demos, pedidos, clientes, caja y mensajes.

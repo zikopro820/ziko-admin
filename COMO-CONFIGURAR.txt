@@ -68,3 +68,10 @@ EL DÍA A DÍA
     El plan mensual sigue siendo S/ 120 (se ve como $32) y la instalación S/ 300 (se ve como $80).
   • Los mensajes de Contacto y del Libro de Reclamaciones llegan a «Mensajes».
   • El recibo NO reemplaza la boleta o factura electrónica de SUNAT.
+
+FACTURACIÓN ELECTRÓNICA (SUNAT) · ETAPA 1: PRUEBAS
+- Nueva sección "Facturación SUNAT": datos del emisor, nueva boleta / factura, lista de comprobantes,
+  ticket de 80 mm o 58 mm (ticketera) y hoja A4 / PDF, con QR.
+- Necesita el servidor "ziko-facturacion" publicado (ver COMO-PUBLICAR.txt de ese repositorio).
+- Las REGLAS cambiaron (fact_empresas): vuelve a pegar firestore.rules y Publicar.
+- En esta etapa todo va al ambiente de PRUEBAS de la SUNAT: sin valor tributario.

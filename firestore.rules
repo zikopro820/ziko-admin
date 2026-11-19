@@ -85,5 +85,19 @@ service cloud.firestore {
         && d().estado == 'nuevo' && d().mensaje is string && d().mensaje.size() <= 4000;
     }
     match /movimientos/{id} { allow read, write: if equipo(); }
+
+    // ---------- Facturación electrónica (SUNAT) ----------
+    // Datos del emisor: los ve quien puede emitir; solo Administración los cambia.
+    // El correlativo (corr) y los comprobantes SOLO los escribe el servidor de facturación.
+    match /fact_empresas/{emp} {
+      allow read: if admin() || (request.auth != null && request.auth.token.email in resource.data.get('usuarios', []));
+      allow create: if admin() && !('corr' in request.resource.data);
+      allow update: if admin() && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['corr']);
+      allow delete: if admin();
+      match /comprobantes/{c} {
+        allow read: if admin() || (request.auth != null && request.auth.token.email in get(/databases/$(database)/documents/fact_empresas/$(emp)).data.get('usuarios', []));
+        allow write: if false;
+      }
+    }
   }
 }
