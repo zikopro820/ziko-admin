@@ -233,3 +233,27 @@ h1, h2 { font-family: "Montserrat", system-ui, sans-serif; letter-spacing: -.02e
 .fact-tot b { font-size: 1.15rem; } .fact-tot em { flex-basis: 100%; text-align: right; color: #b45309; font-style: normal; font-weight: 600; }
 h3.sub { margin: 16px 0 8px; font-size: 1rem; }
 @media (max-width: 560px) { .f-it { grid-template-columns: 1fr 70px; } .f-it .f-p { grid-column: 1; } }
+
+/* ---------- Tarjetas de resumen con color neón (Inicio, Caja, Facturación, Reportes) ---------- */
+.kpis.neon .kpi { --nc: #10b981; --nt: #047857; position: relative; overflow: hidden; border: 1.5px solid color-mix(in srgb, var(--nc) 55%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--nc) 13%, #fff), #fff 70%); box-shadow: 0 0 0 1px color-mix(in srgb, var(--nc) 12%, transparent), 0 6px 18px color-mix(in srgb, var(--nc) 22%, transparent); transition: transform .15s, box-shadow .15s; }
+.kpis.neon .kpi::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--nc); box-shadow: 0 0 12px var(--nc); }
+.kpis.neon .kpi:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px color-mix(in srgb, var(--nc) 30%, transparent), 0 10px 26px color-mix(in srgb, var(--nc) 35%, transparent); }
+.kpis.neon .kpi span { color: var(--nt); }
+.kpis.neon .kpi b { color: var(--nt); text-shadow: 0 0 14px color-mix(in srgb, var(--nc) 45%, transparent); }
+.kpis.neon .kpi b.neg { color: var(--bad); }
+.kpis.neon .kpi:nth-child(7n+1) { --nc: #10f0a0; --nt: #047857; }   /* verde neón */
+.kpis.neon .kpi:nth-child(7n+2) { --nc: #22d3ee; --nt: #0e7490; }   /* celeste neón */
+.kpis.neon .kpi:nth-child(7n+3) { --nc: #fbbf24; --nt: #b45309; }   /* amarillo / naranja neón */
+.kpis.neon .kpi:nth-child(7n+4) { --nc: #a855f7; --nt: #7e22ce; }   /* morado neón */
+.kpis.neon .kpi:nth-child(7n+5) { --nc: #f472b6; --nt: #be185d; }   /* rosado / fucsia neón */
+.kpis.neon .kpi:nth-child(7n+6) { --nc: #60a5fa; --nt: #1d4ed8; }   /* azul neón */
+.kpis.neon .kpi:nth-child(7n+7) { --nc: #a3e635; --nt: #4d7c0f; }   /* lima neón */
+@media (prefers-reduced-motion: reduce) { .kpis.neon .kpi { transition: none; } .kpis.neon .kpi:hover { transform: none; } }
+
+/* ---------- Comprobantes por pago dentro de cada pedido ---------- */
+.cpe-b { margin: 10px 0; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 12px; background: #fbfdff; display: grid; gap: 8px; }
+.cpe-b > b { font-size: .88rem; }
+.cpe-r { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: .88rem; }
+.cpe-r > span:first-child { flex: 1 1 220px; display: grid; } .cpe-r small { color: var(--muted); font-size: .78rem; }
+.btn-xs { padding: 5px 10px; font-size: .8rem; border-radius: 8px; }

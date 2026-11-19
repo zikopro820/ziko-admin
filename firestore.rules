@@ -92,11 +92,11 @@ service cloud.firestore {
     match /fact_empresas/{emp} {
       allow read: if admin() || (request.auth != null && request.auth.token.email in resource.data.get('usuarios', []));
       allow create: if admin() && !('corr' in request.resource.data) && !('corrP' in request.resource.data) && !('prod' in request.resource.data);
-      allow update: if admin() && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['corr', 'corrP', 'prod']);
+      allow update: if admin() && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['corr', 'corrP', 'corrNV', 'prod']);
       allow delete: if admin();
-      // comprobantes = PRUEBAS · cpe = REALES (producción)
+      // comprobantes = PRUEBAS · cpe = REALES (producción) · notas = notas de venta internas
       match /{col}/{c} {
-        allow read: if col in ['comprobantes', 'cpe'] && (admin() || (request.auth != null && request.auth.token.email in get(/databases/$(database)/documents/fact_empresas/$(emp)).data.get('usuarios', [])));
+        allow read: if col in ['comprobantes', 'cpe', 'notas'] && (admin() || (request.auth != null && request.auth.token.email in get(/databases/$(database)/documents/fact_empresas/$(emp)).data.get('usuarios', [])));
         allow write: if false;
       }
     }
